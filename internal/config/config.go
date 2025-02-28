@@ -11,6 +11,11 @@ type Config struct {
 		Port string `mapstructure:"port"`
 		Mode string `mapstructure:"mode"`
 	} `mapstructure:"server"`
+	PortOne struct {
+		ImpKey    string `mapstructure:"imp_key"`
+		ImpSecret string `mapstructure:"imp_secret"`
+		BaseURL   string `mapstructure:"base_url"`
+	} `mapstructure:"portone"`
 }
 
 func NewConfig() *Config {

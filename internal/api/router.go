@@ -2,19 +2,25 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/project/internal/config"
-	"github.com/yourusername/project/internal/middleware"
+	"github.com/gudcks0305/payments-apply/internal/config"
+	"github.com/gudcks0305/payments-apply/internal/middleware"
+	"github.com/gudcks0305/payments-apply/internal/portone"
+	"github.com/gudcks0305/payments-apply/pkg/logger"
 )
 
 type Router struct {
-	config *config.Config
-	engine *gin.Engine
-	logger *middleware.LoggerMiddleware
+	config    *config.Config
+	engine    *gin.Engine
+	logger    *middleware.LoggerMiddleware
+	portone   *portone.Client
+	sysLogger logger.Logger
 }
 
 func NewRouter(
 	config *config.Config,
 	logger *middleware.LoggerMiddleware,
+	portone *portone.Client,
+	sysLogger logger.Logger,
 ) *Router {
 	engine := gin.New()
 
@@ -26,16 +32,17 @@ func NewRouter(
 	gin.SetMode(config.Server.Mode)
 
 	return &Router{
-		config: config,
-		engine: engine,
-		logger: logger,
+		config:    config,
+		engine:    engine,
+		logger:    logger,
+		portone:   portone,
+		sysLogger: sysLogger,
 	}
 }
 
 func (r *Router) Run() {
-
-	// Swagger 문서 설정
-	//r.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// API 라우트 설정
+	//api := r.engine.Group("/api/v1")
 
 	// 서버 시작
 	r.engine.Run(":" + r.config.Server.Port)
