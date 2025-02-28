@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gudcks0305/payments-apply/internal/config"
-	"github.com/gudcks0305/payments-apply/internal/middleware"
 	"github.com/gudcks0305/payments-apply/internal/portone"
 	"github.com/gudcks0305/payments-apply/pkg/logger"
 )
@@ -11,14 +10,12 @@ import (
 type Router struct {
 	config    *config.Config
 	engine    *gin.Engine
-	logger    *middleware.LoggerMiddleware
 	portone   *portone.Client
 	sysLogger logger.Logger
 }
 
 func NewRouter(
 	config *config.Config,
-	logger *middleware.LoggerMiddleware,
 	portone *portone.Client,
 	sysLogger logger.Logger,
 ) *Router {
@@ -26,7 +23,6 @@ func NewRouter(
 
 	// 미들웨어 설정
 	engine.Use(gin.Recovery())
-	engine.Use(logger.Logger())
 
 	// 서버 모드 설정
 	gin.SetMode(config.Server.Mode)
@@ -34,7 +30,6 @@ func NewRouter(
 	return &Router{
 		config:    config,
 		engine:    engine,
-		logger:    logger,
 		portone:   portone,
 		sysLogger: sysLogger,
 	}
