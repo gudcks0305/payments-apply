@@ -1,8 +1,7 @@
 import { PaymentRequestParams, PortOneResponse } from '../types/payment';
 
-const PORTONE_SHOP_ID = 'iamport00m';
-const CHANNEL_KEY = 'channel-key-d879cf38-5530-4f0e-83e2-094e8f75e5ee';
-
+const PORTONE_SHOP_ID = import.meta.env.VITE_PORTONE_SHOP_ID;
+const CHANNEL_KEY = import.meta.env.VITE_CHANNEL_KEY;
 declare global {
   interface Window {
     IMP: any;

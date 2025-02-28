@@ -11,11 +11,14 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import PaymentForm from './components/PaymentForm.vue'
-
+import { initPortOne } from './utils/portOneUtils'
 export default defineComponent({
   name: 'App',
   components: {
     PaymentForm
+  },
+  mounted() {
+    initPortOne();
   }
 })
 </script>
