@@ -2,3 +2,8 @@ server:
   port: "8080"
   mode: "debug"
 
+portone:
+  imp_key: ""
+  imp_secret: ""
+  base_url: ""
+
