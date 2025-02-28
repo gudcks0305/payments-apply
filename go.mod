@@ -1,4 +1,4 @@
-module github.com/yourusername/project
+module github.com/gudcks0305/payments-apply
 
 go 1.24
 
