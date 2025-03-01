@@ -16,17 +16,15 @@ type Client struct {
 	config      *config.Config
 	httpClient  *http.Client
 	authService *AuthService
-	logger      logger.Logger
 }
 
 // NewClient 는 새 Client 인스턴스를 생성합니다
-func NewClient(config *config.Config, logger logger.Logger) *Client {
+func NewClient(config *config.Config) *Client {
 	authService := NewAuthService(config)
 	return &Client{
 		config:      config,
 		httpClient:  &http.Client{Timeout: 10 * time.Second},
 		authService: authService,
-		logger:      logger,
 	}
 }
 
@@ -58,7 +56,7 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	c.logger.Info("[PortOne API 요청] %s %s", method, path)
+	logger.Log.Info("[PortOne API 요청] %s %s", method, path)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -67,7 +65,7 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized && allowRetry {
-		c.logger.Warn("[PortOne API] 토큰 만료됨, 재발급 시도")
+		logger.Log.Warn("[PortOne API] 토큰 만료됨, 재발급 시도")
 		c.authService.InvalidateToken()
 		return c.doWithRetry(method, path, reqBody, respBody, false) // 재시도는 한 번만
 	}

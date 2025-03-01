@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"github.com/gudcks0305/payments-apply/pkg/logger"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -41,12 +41,12 @@ func NewConfig() *Config {
 	bindEnvs()
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("설정 파일을 읽는데 실패했습니다: %v, 환경 변수만 사용합니다", err)
+		logger.Log.Error("설정 파일을 읽는데 실패했습니다: %v, 환경 변수만 사용합니다", err)
 	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatalf("설정을 구조체로 변환하는데 실패했습니다: %v", err)
+		logger.Log.Error("설정을 구조체로 변환하는데 실패했습니다: %v", err)
 	}
 
 	return &config

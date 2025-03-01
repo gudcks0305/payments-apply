@@ -4,11 +4,13 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/gudcks0305/payments-apply/internal/api"
+	"github.com/gudcks0305/payments-apply/internal/api/handler"
 	"github.com/gudcks0305/payments-apply/internal/config"
 	"github.com/gudcks0305/payments-apply/internal/middleware"
 	"github.com/gudcks0305/payments-apply/internal/portone"
+	"github.com/gudcks0305/payments-apply/internal/repository"
+	"github.com/gudcks0305/payments-apply/internal/service"
 	"github.com/gudcks0305/payments-apply/pkg/database"
-	"github.com/gudcks0305/payments-apply/pkg/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -35,7 +37,7 @@ func startServer(p HandlerParams) {
 				}
 
 				// 라우트 설정
-				p.Router.SetupRoutes(p.Engine)
+				//p.Router.SetupRoutes(p.Engine, handler.NewPaymentHandler)
 				// 정적 파일 제공 (프로덕션 환경에서 클라이언트 앱 서빙)
 				/*p.Engine.Static("/assets", "./client/dist/assets")
 				p.Engine.StaticFile("/", "./client/dist/index.html")
@@ -61,11 +63,19 @@ func main() {
 	app := fx.New(
 		// 의존성 제공
 		fx.Provide(
+			// etc ...
 			config.NewConfig,
-			logger.NewLogger,
 			portone.NewClient,
 			database.NewDatabase,
+			// svc
+			service.NewPaymentService,
+			//repo
+			repository.NewPaymentRepository,
+
+			// handler...
 			api.NewHandler,
+			handler.NewPaymentHandler,
+
 			newGinEngine,
 		),
 		// 애플리케이션 실행
@@ -74,9 +84,10 @@ func main() {
 	app.Run()
 }
 
-func newGinEngine() *gin.Engine {
+func newGinEngine(config *config.Config) *gin.Engine {
 	r := gin.Default()
 	// CORS 미들웨어 설정 추가
+	gin.SetMode(config.Server.Mode)
 	r.Use(middleware.SetupCORS())
 	return r
 }

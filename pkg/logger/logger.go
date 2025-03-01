@@ -21,6 +21,12 @@ type logger struct {
 	debugLogger *log.Logger
 }
 
+var Log Logger
+
+func init() {
+	Log = NewLogger()
+}
+
 func NewLogger() Logger {
 	return &logger{
 		infoLogger:  log.New(os.Stdout, "[INFO] ", log.LstdFlags),
