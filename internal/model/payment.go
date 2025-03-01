@@ -16,17 +16,16 @@ const (
 )
 
 type Payment struct {
-	ID           uuid.UUID `gorm:"primaryKey;type:varchar(36)"` // MerchantUID
-	ImpUID       string    `gorm:"index"`
-	ProductName  string
-	Amount       int
-	Status       PaymentStatusType
-	PayMethod    string
-	PaidAt       *time.Time
-	ErrorCode    string
-	ErrorMessage string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID          uuid.UUID `gorm:"primaryKey;type:varchar(36)"` // MerchantUID
+	ImpUID      string    `gorm:"index"`
+	ProductName string
+	Amount      int
+	Status      PaymentStatusType `gorm:"default:pending"`
+	PayMethod   string            `gorm:"default:card"`
+	ErrCode     string            `gorm:"default:"`
+	ErrMessage  string            `gorm:"default:"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (p *Payment) BeforeCreate(tx *gorm.DB) (err error) {

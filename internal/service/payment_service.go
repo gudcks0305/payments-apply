@@ -16,6 +16,7 @@ func (s PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdRespo
 		Amount:      d.Amount,
 		PayMethod:   d.PayMethod,
 		ProductName: d.ProductName,
+		Status:      model.StatusPending,
 	}
 	err := s.repository.CreatePayment(payment)
 	if err != nil {
