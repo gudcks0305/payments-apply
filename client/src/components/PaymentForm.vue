@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { usePaymentApi } from '../api/paymentApi';
+import { requestPayment } from '../utils/portOneUtils';
 
 const { merchantUid, initializePayment } = usePaymentApi();
 const isLoading = ref(false);
@@ -97,6 +98,18 @@ const handleInitPayment = async () => {
 
 const proceedToPayment = () => {
   console.log('결제 진행: 결제 ID', merchantUid.value, '주문번호', merchantUid.value);
+  requestPayment({
+    merchant_uid: payment.merchantUid,
+    name: payment.productName,
+    amount: payment.amount,
+    pay_method: 'card',
+    m_redirect_url: window.location.href + '/payment/success',
+    buyer_email: 'test@test.com',
+    buyer_name: '홍길동',
+    buyer_tel: '01012345678',
+    buyer_addr: '서울특별시 강남구 테헤란로 14길 6 남도빌딩 2층',
+    buyer_postcode: '12345'
+  });
 };
 </script>
 

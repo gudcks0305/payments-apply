@@ -17,9 +17,6 @@ export const initPortOne = (): void => {
   window.IMP.init(PORTONE_SHOP_ID);
 };
 
-export const generateMerchantUid = (): string => {
-  return `order-${new Date().getTime()}-${Math.floor(Math.random() * 1000)}`;
-};
 
 export const requestPayment = (
   params: Omit<PaymentRequestParams, 'channelKey'>
