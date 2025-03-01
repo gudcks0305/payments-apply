@@ -1,105 +1,135 @@
 <template>
-    <div class="container">
-      <article>
-        <h2>결제 정보 입력</h2>
-        <form @submit.prevent="submitPayment">
-          <div class="grid">
-            <label for="merchantUid">
-              가맹점 주문번호
-              <input
-                type="text"
-                id="merchantUid"
-                v-model="payment.merchantUid"
-                placeholder="예: ORD20240501-001"
-                required
-              />
-            </label>
-          </div>
-          
-          <div class="grid">
-            <label for="productName">
-              결제대상 제품명
-              <input
-                type="text"
-                id="productName"
-                v-model="payment.productName"
-                placeholder="예: 프리미엄 멤버십"
-                required
-              />
-            </label>
-          </div>
-          
-          <div class="grid">
-            <label for="amount">
-              결제금액
-              <input
-                type="number"
-                id="amount"
-                v-model="payment.amount"
-                placeholder="예: 10000"
-                min="100"
-                required
-              />
-              <small>* 최소 결제 금액은 100원입니다.</small>
-            </label>
-          </div>
-          
-          <button type="submit" class="primary">결제하기</button>
-        </form>
-      </article>
-    </div>
-  </template>
-  
-  <script lang="ts">
-  import { defineComponent, reactive } from 'vue'
-  
-  interface Payment {
-    merchantUid: string;
-    productName: string;
-    amount: number | null;
+  <div class="container">
+    <article>
+      <h2>결제 정보 입력</h2>
+      
+      <form @submit.prevent="handleInitPayment">
+        <div class="grid">
+          <label for="merchantUid">
+            가맹점 주문번호
+            <input
+              type="text"
+              id="merchantUid"
+              v-model="payment.merchantUid"
+              placeholder="자동 생성됩니다"
+              readonly
+            />
+            <small>* 주문번호는 결제 초기화 후 자동으로 생성됩니다.</small>
+          </label>
+        </div>
+        
+        <div class="grid">
+          <label for="productName">
+            결제대상 제품명
+            <input
+              type="text"
+              id="productName"
+              v-model="payment.productName"
+              placeholder="예: 프리미엄 멤버십"
+              required
+            />
+          </label>
+        </div>
+        
+        <div class="grid">
+          <label for="amount">
+            결제금액
+            <input
+              type="number"
+              id="amount"
+              v-model="payment.amount"
+              placeholder="예: 10000"
+              min="100"
+              required
+            />
+            <small>* 최소 결제 금액은 100원입니다.</small>
+          </label>
+        </div>
+        
+        <button type="submit" class="primary" :disabled="merchantUid !== ''">
+          결제
+        </button>
+      </form>
+      
+      <div v-if="merchantUid" class="payment-info">
+        <p>결제 ID: {{ merchantUid }}</p>
+        <button @click="proceedToPayment" class="secondary">
+          결제 진행하기
+        </button>
+      </div>
+    </article>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref } from 'vue';
+import { usePaymentApi } from '../api/paymentApi';
+
+const { merchantUid, initializePayment } = usePaymentApi();
+const isLoading = ref(false);
+
+const payment = reactive({
+  productName: '',
+  amount: 10000,
+  merchantUid: ''
+});
+
+const handleInitPayment = async () => {
+  if (!payment.amount || payment.amount < 100) {
+    alert('결제 금액은 최소 100원 이상이어야 합니다.');
+    return;
   }
   
-  export default defineComponent({
-    name: 'PaymentForm',
-    setup() {
-      const payment = reactive<Payment>({
-        merchantUid: '',
-        productName: '',
-        amount: null
-      })
+  isLoading.value = true;
   
-      const submitPayment = () => {
-        if (!payment.amount || payment.amount < 100) {
-          alert('결제 금액은 최소 100원 이상이어야 합니다.')
-          return
-        }
+  const success = await initializePayment({
+    amount: payment.amount,
+    productName: payment.productName,
+    payMethod: 'card'
+  });
   
-        console.log('결제 정보:', payment)
-        // 여기에 실제 결제 요청 로직 구현
-        alert(`${payment.productName} 상품에 대한 ${payment.amount}원 결제가 요청되었습니다.`)
-      }
-  
-      return {
-        payment,
-        submitPayment
-      }
-    }
-  })
-  </script>
-  
-  <style scoped>
-  .container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding-top: 2rem;
+  if (success) {
+    payment.merchantUid = merchantUid.value;
   }
   
-  h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
-  button {
-    margin-top: 1rem;
-  }
-  </style>
+  isLoading.value = false;
+};
+
+const proceedToPayment = () => {
+  console.log('결제 진행: 결제 ID', merchantUid.value, '주문번호', merchantUid.value);
+};
+</script>
+
+<style scoped>
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+button {
+  margin-top: 1rem;
+}
+
+.loading {
+  text-align: center;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+.payment-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+input[readonly] {
+  background-color: #f2f2f2;
+  color: #666;
+}
+</style>
