@@ -4,14 +4,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/gudcks0305/payments-apply/internal/dto"
 	"github.com/gudcks0305/payments-apply/internal/model"
+	"github.com/gudcks0305/payments-apply/internal/portone"
 	"github.com/gudcks0305/payments-apply/internal/repository"
 )
 
 type PaymentService struct {
-	repository *repository.PaymentRepository
+	repository    *repository.PaymentRepository
+	portoneClient *portone.Client
 }
 
-func (s PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdResponse[uuid.UUID], error) {
+func NewPaymentService(repository *repository.PaymentRepository, portoneClient *portone.Client) *PaymentService {
+	return &PaymentService{repository: repository, portoneClient: portoneClient}
+}
+
+func (s *PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdResponse[uuid.UUID], error) {
 	payment := &model.Payment{
 		Amount:      d.Amount,
 		PayMethod:   d.PayMethod,
@@ -25,6 +31,20 @@ func (s PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdRespo
 	return &dto.IdResponse[uuid.UUID]{ID: payment.ID}, nil
 }
 
-func NewPaymentService(repository *repository.PaymentRepository) *PaymentService {
-	return &PaymentService{repository: repository}
+func (s *PaymentService) ConfirmWithCompletePayment(d *dto.PaymentData) (interface{}, error) {
+	var result interface{}
+	err := s.portoneClient.GetPayment(d.ImpUID, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *PaymentService) GetPaymentByIMPUID(impUID string) (interface{}, error) {
+	var res interface{}
+	err := s.portoneClient.GetPayment(impUID, &res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

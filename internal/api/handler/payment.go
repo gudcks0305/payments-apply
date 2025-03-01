@@ -30,3 +30,30 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 
 	c.JSON(201, dto.APIResponseCreated(payment))
 }
+
+func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
+	var paymentData dto.PaymentData
+	if err := c.ShouldBindJSON(&paymentData); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	payment, err := ph.paymentService.ConfirmWithCompletePayment(&paymentData)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, dto.APIResponseSuccess(payment))
+}
+
+func (ph *PaymentHandler) GetPaymentByImpUID(context *gin.Context) {
+	impUID := context.Param("impUID")
+	payment, err := ph.paymentService.GetPaymentByIMPUID(impUID)
+	if err != nil {
+		context.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	context.JSON(200, dto.APIResponseSuccess(payment))
+}

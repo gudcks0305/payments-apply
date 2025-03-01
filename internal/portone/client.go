@@ -80,10 +80,22 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		errResp := ErrorResponse{}
 		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil {
-			return fmt.Errorf("API 오류 응답 (상태 코드: %d)", resp.StatusCode)
+			return fmt.Errorf("API 오류 응답 (상태 코드: %d)", resp.Status+err.Error())
 		}
 		return errors.New(errResp.Message)
 	}
 
 	return nil
+}
+
+func (c *Client) Get(path string, respBody interface{}) error {
+	return c.Do(http.MethodGet, path, nil, respBody)
+}
+
+func (c *Client) Post(path string, reqBody interface{}, respBody interface{}) error {
+	return c.Do(http.MethodPost, path, reqBody, respBody)
+}
+
+func (c *Client) GetPayment(id string, respBody interface{}) error {
+	return c.Get("/payments/"+id, respBody)
 }

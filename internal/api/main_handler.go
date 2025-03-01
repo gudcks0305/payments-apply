@@ -28,6 +28,8 @@ func (h *Handler) SetupRoutes(r *gin.Engine) {
 				context.JSON(200, gin.H{"message": "POST /api/v1/payments"})
 			})
 			payments.POST("", h.paymentHandler.CreatePayment)
+			payments.PUT("/:id/complete", h.paymentHandler.ConfirmWithCompletePayment)
+			payments.GET("/imp/:impUID", h.paymentHandler.GetPaymentByImpUID)
 		}
 
 	}
