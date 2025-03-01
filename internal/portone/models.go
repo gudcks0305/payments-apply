@@ -23,10 +23,10 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-type APIResponse struct {
-	Code     int         `json:"code"`
-	Message  string      `json:"message"`
-	Response interface{} `json:"response"`
+type APIResponse[T any] struct {
+	Code     int    `json:"code"`
+	Message  string `json:"message"`
+	Response T      `json:"response"`
 }
 
 type PaymentData struct {
@@ -53,6 +53,7 @@ type PaymentData struct {
 	BankName      string `json:"bank_name,omitempty"`
 	CardQuota     int    `json:"card_quota,omitempty"`
 	CardNumber    string `json:"card_number,omitempty"`
+	Amount        int    `json:"amount,omitempty"`
 }
 
 /*

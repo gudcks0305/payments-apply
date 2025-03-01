@@ -63,8 +63,11 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { usePaymentApi } from '../api/paymentApi';
+import { useRouter } from 'vue-router';
+import { completePayment, usePaymentApi } from '../api/paymentApi';
 import { requestPayment } from '../utils/portOneUtils';
+
+const router = useRouter();
 
 const { merchantUid, initializePayment } = usePaymentApi();
 const isLoading = ref(false);
@@ -103,7 +106,6 @@ const proceedToPayment = async () => {
     name: payment.productName,
     amount: payment.amount,
     pay_method: 'card',
-    m_redirect_url: window.location.origin + '/payments/success',
     buyer_email: 'test@test.com',
     buyer_name: '홍길동',
     buyer_tel: '01012345678',
@@ -111,6 +113,18 @@ const proceedToPayment = async () => {
     buyer_postcode: '12345'
   });
   console.log(response);
+
+  if (response.success) {
+    const confirmedPayment = await completePayment(response);
+    console.log(confirmedPayment);
+    if (confirmedPayment === null) {
+      alert('결제에 실패 하였습니다.');
+    } else {
+      alert('결제가 성공적으로 처리 되었습니다.');
+    }
+  } else {
+    alert(response.error_msg);
+  }
 };
 </script>
 

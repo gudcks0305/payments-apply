@@ -33,57 +33,64 @@ func (s *PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdResp
 }
 
 func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (interface{}, error) {
-	var result = &portone.PaymentData{}
+	var result = &portone.APIResponse[portone.PaymentData]{}
 	err := s.portoneClient.GetPayment(p.ImpUID, result)
 	if err != nil {
 		return nil, err
 	}
 
-	err = validate(p, result)
+	res := result.Response
+	err = validate(p, &res)
 	if err != nil {
 		return nil, err
 	}
-	if result.Status == "paid" {
+	if res.Status == "paid" {
 		cancelReq := portone.PaymentCancelRequest{
 			ImpUID:      p.ImpUID,
-			MerchantUID: result.MerchantUID,
-			Amount:      result.PaidAmount,
+			MerchantUID: res.MerchantUID,
+			Amount:      res.PaidAmount,
 			Reason:      "TEST",
 		}
-		err := s.portoneClient.CancelPayment(cancelReq, nil)
+		resp := &portone.APIResponse[portone.PaymentData]{}
+		err := s.portoneClient.CancelPayment(cancelReq, resp)
 		if err != nil {
 			return nil, err
 		}
 		s.UpdatePaymentModel(p)
+		// 취소 Resp 가 제대로 내려가지 않으니 확인 필요
+		return resp.Response, nil
 	}
 
-	return result, nil
+	return res, nil
 }
 
 func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData) {
 	tx := s.repository.DB.Begin()
-	defer tx.Rollback()
 
-	id, _ := uuid.FromBytes([]byte(p.MerchantUID))
+	id, _ := uuid.Parse(p.MerchantUID)
 	paymentModel, _ := s.repository.GetPaymentByID(id)
 	paymentModel.Status = model.StatusCancelled
 	paymentModel.ImpUID = p.ImpUID
 
-	tx.Save(paymentModel)
+	err := tx.Save(paymentModel).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
 	tx.Commit()
 }
 
 func (s *PaymentService) GetPaymentByIMPUID(impUID string) (interface{}, error) {
-	var res *portone.PaymentData
+	var res = &portone.APIResponse[portone.PaymentData]{}
 	err := s.portoneClient.GetPayment(impUID, res)
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	return res.Response, nil
 }
 
 func validate(d, res *portone.PaymentData) error {
-	if d.PaidAmount != res.PaidAmount {
+	if d.PaidAmount != res.Amount {
 		return fmt.Errorf("invalid paid amount")
 	}
 	return nil

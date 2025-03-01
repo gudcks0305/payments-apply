@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ref } from 'vue';
+import { PortOneResponse } from '../types/payment';
 
 interface PaymentInitResponse {
   merchantUid: string;
@@ -49,3 +50,18 @@ export function usePaymentApi() {
     initializePayment
   };
 } 
+
+export const completePayment = async (paymentData: PortOneResponse): Promise<PortOneResponse | null> => {
+  try {
+    const response = await axios.put<PortOneResponse>(
+      `${import.meta.env.VITE_BASE_URL}/api/v1/payments/${paymentData.merchant_uid}/complete`,
+      paymentData
+    );
+
+    return response.data;
+  } catch (err) {
+    console.error('결제 확인 실패:', err);
+    return null;
+  }
+
+};
