@@ -17,6 +17,15 @@ type Config struct {
 		ImpSecret string `mapstructure:"imp_secret"`
 		BaseURL   string `mapstructure:"base_url"`
 	} `mapstructure:"portone"`
+	Database struct {
+		Host        string `mapstructure:"host"`
+		Port        string `mapstructure:"port"`
+		User        string `mapstructure:"user"`
+		Password    string `mapstructure:"password"`
+		DBName      string `mapstructure:"db_name"`
+		Driver      string `mapstructure:"driver"`
+		AutoMigrate bool   `mapstructure:"auto_migrate"`
+	} `mapstructure:"database"`
 }
 
 func NewConfig() *Config {

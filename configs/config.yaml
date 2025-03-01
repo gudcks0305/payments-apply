@@ -7,3 +7,6 @@ portone:
   imp_secret: ""
   base_url: ""
 
+database:
+  driver: sqlite3
+  auto_migrate: true  # 마이그레이션 활성화/비활성화 설정
