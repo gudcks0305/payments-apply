@@ -1,7 +1,9 @@
 package service
 
 import (
-	"fmt"
+	"github.com/gudcks0305/payments-apply/internal/errors"
+	errors2 "github.com/pkg/errors"
+
 	"github.com/google/uuid"
 	"github.com/gudcks0305/payments-apply/internal/dto"
 	"github.com/gudcks0305/payments-apply/internal/model"
@@ -56,7 +58,10 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (int
 		if err != nil {
 			return nil, err
 		}
-		s.UpdatePaymentModel(p)
+		err = s.UpdatePaymentModel(p)
+		if err != nil {
+			return nil, err
+		}
 		// 취소 Resp 가 제대로 내려가지 않으니 확인 필요
 		return resp.Response, nil
 	}
@@ -64,7 +69,7 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (int
 	return res, nil
 }
 
-func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData) {
+func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData) error {
 	tx := s.repository.DB.Begin()
 
 	id, _ := uuid.Parse(p.MerchantUID)
@@ -75,23 +80,24 @@ func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData) {
 	err := tx.Save(paymentModel).Error
 	if err != nil {
 		tx.Rollback()
-		return
+		return err
 	}
 	tx.Commit()
+	return nil
 }
 
 func (s *PaymentService) GetPaymentByIMPUID(impUID string) (interface{}, error) {
 	var res = &portone.APIResponse[portone.PaymentData]{}
 	err := s.portoneClient.GetPayment(impUID, res)
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrap(errors.ErrPortOneError, err.Error())
 	}
 	return res.Response, nil
 }
 
 func validate(d, res *portone.PaymentData) error {
 	if d.PaidAmount != res.Amount {
-		return fmt.Errorf("invalid paid amount")
+		return errors.ErrInvalidAmount
 	}
 	return nil
 }
