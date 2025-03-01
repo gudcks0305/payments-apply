@@ -96,6 +96,10 @@ func (c *Client) Post(path string, reqBody interface{}, respBody interface{}) er
 	return c.Do(http.MethodPost, path, reqBody, respBody)
 }
 
-func (c *Client) GetPayment(id string, respBody interface{}) error {
+func (c *Client) GetPayment(id string, respBody *PaymentData) error {
 	return c.Get("/payments/"+id, respBody)
+}
+
+func (c *Client) CancelPayment(reqBody PaymentCancelRequest, respBody *PaymentData) error {
+	return c.Do(http.MethodPost, "/payments/cancel", reqBody, respBody)
 }

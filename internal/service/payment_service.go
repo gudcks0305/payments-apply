@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/gudcks0305/payments-apply/internal/dto"
 	"github.com/gudcks0305/payments-apply/internal/model"
@@ -31,20 +32,59 @@ func (s *PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdResp
 	return &dto.IdResponse[uuid.UUID]{ID: payment.ID}, nil
 }
 
-func (s *PaymentService) ConfirmWithCompletePayment(d *dto.PaymentData) (interface{}, error) {
-	var result interface{}
-	err := s.portoneClient.GetPayment(d.ImpUID, &result)
+func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (interface{}, error) {
+	var result = &portone.PaymentData{}
+	err := s.portoneClient.GetPayment(p.ImpUID, result)
 	if err != nil {
 		return nil, err
 	}
+
+	err = validate(p, result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Status == "paid" {
+		cancelReq := portone.PaymentCancelRequest{
+			ImpUID:      p.ImpUID,
+			MerchantUID: result.MerchantUID,
+			Amount:      result.PaidAmount,
+			Reason:      "TEST",
+		}
+		err := s.portoneClient.CancelPayment(cancelReq, nil)
+		if err != nil {
+			return nil, err
+		}
+		s.UpdatePaymentModel(p)
+	}
+
 	return result, nil
 }
 
+func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData) {
+	tx := s.repository.DB.Begin()
+	defer tx.Rollback()
+
+	id, _ := uuid.FromBytes([]byte(p.MerchantUID))
+	paymentModel, _ := s.repository.GetPaymentByID(id)
+	paymentModel.Status = model.StatusCancelled
+	paymentModel.ImpUID = p.ImpUID
+
+	tx.Save(paymentModel)
+	tx.Commit()
+}
+
 func (s *PaymentService) GetPaymentByIMPUID(impUID string) (interface{}, error) {
-	var res interface{}
-	err := s.portoneClient.GetPayment(impUID, &res)
+	var res *portone.PaymentData
+	err := s.portoneClient.GetPayment(impUID, res)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
+}
+
+func validate(d, res *portone.PaymentData) error {
+	if d.PaidAmount != res.PaidAmount {
+		return fmt.Errorf("invalid paid amount")
+	}
+	return nil
 }

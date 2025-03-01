@@ -7,19 +7,19 @@ import (
 )
 
 type PaymentRepository struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func NewPaymentRepository(db *gorm.DB) *PaymentRepository {
-	return &PaymentRepository{db: db}
+	return &PaymentRepository{DB: db}
 }
 
 func (pr *PaymentRepository) CreatePayment(payment *model.Payment) error {
-	return pr.db.Create(payment).Error
+	return pr.DB.Create(payment).Error
 }
 
 func (pr *PaymentRepository) GetPaymentByID(id uuid.UUID) (*model.Payment, error) {
 	var payment model.Payment
-	err := pr.db.First(&payment, id).Error
+	err := pr.DB.First(&payment, id).Error
 	return &payment, err
 }

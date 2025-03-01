@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gudcks0305/payments-apply/internal/dto"
+	"github.com/gudcks0305/payments-apply/internal/portone"
 	"github.com/gudcks0305/payments-apply/internal/service"
 )
 
@@ -32,13 +33,13 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 }
 
 func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
-	var paymentData dto.PaymentData
+	var paymentData *portone.PaymentData
 	if err := c.ShouldBindJSON(&paymentData); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	payment, err := ph.paymentService.ConfirmWithCompletePayment(&paymentData)
+	payment, err := ph.paymentService.ConfirmWithCompletePayment(paymentData)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
