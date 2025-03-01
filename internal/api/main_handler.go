@@ -27,6 +27,7 @@ func (h *Handler) SetupRoutes(r *gin.Engine) {
 			payments.GET("", func(context *gin.Context) {
 				context.JSON(200, gin.H{"message": "POST /api/v1/payments"})
 			})
+			payments.POST("", h.paymentHandler.CreatePayment)
 		}
 
 	}

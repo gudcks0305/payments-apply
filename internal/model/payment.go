@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
+import "github.com/google/uuid"
 
 type PaymentStatusType string
 
@@ -12,18 +16,20 @@ const (
 )
 
 type Payment struct {
-	ID           uint   `gorm:"primaryKey"`
-	MerchantUID  string `gorm:"uniqueIndex"`
-	CustomerID   string `gorm:"index"`
+	ID           uuid.UUID `gorm:"primaryKey;type:varchar(36)"` // MerchantUID
+	ImpUID       string    `gorm:"index"`
+	ProductName  string
 	Amount       int
 	Status       PaymentStatusType
 	PayMethod    string
 	PaidAt       *time.Time
-	FailReason   string
-	CancelReason string
-	CancelledAt  *time.Time
-	RequestData  string `gorm:"type:text"`
-	ResponseData string `gorm:"type:text"`
+	ErrorCode    string
+	ErrorMessage string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+}
+
+func (p *Payment) BeforeCreate(tx *gorm.DB) (err error) {
+	p.ID = uuid.New()
+	return
 }

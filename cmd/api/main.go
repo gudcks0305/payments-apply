@@ -73,8 +73,8 @@ func main() {
 			repository.NewPaymentRepository,
 
 			// handler...
-			api.NewHandler,
 			handler.NewPaymentHandler,
+			api.NewHandler,
 
 			newGinEngine,
 		),
