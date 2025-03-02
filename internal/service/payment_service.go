@@ -51,8 +51,8 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResp
 	if res.Status == "paid" {
 		cancelReq := portone.PaymentCancelRequest{
 			ImpUID:      p.ImpUid,
-			MerchantUID: res.MerchantUID,
-			Reason:      "TEST",
+			MerchantUID: &res.MerchantUID,
+			Reason:      nil,
 		}
 		resp := &portone.APIResponse[portone.PaymentData]{}
 		err := s.portoneClient.CancelPayment(cancelReq, resp)
@@ -102,10 +102,11 @@ func (s *PaymentService) CancelPaymentByIMPUID(uid string) (interface{}, error) 
 	if err != nil {
 		return nil, errors2.Wrap(errors.ErrPortOneError, err.Error())
 	}
+	reason := "TEST"
 	cancelReq := portone.PaymentCancelRequest{
 		ImpUID:      uid,
-		MerchantUID: res.Response.MerchantUID,
-		Reason:      "TEST",
+		MerchantUID: &res.Response.MerchantUID,
+		Reason:      &reason,
 	}
 	resp := &portone.APIResponse[portone.PaymentData]{}
 	err = s.portoneClient.CancelPayment(cancelReq, resp)

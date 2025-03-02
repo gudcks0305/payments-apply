@@ -122,17 +122,17 @@ type PaymentCancelAnnotation struct {
 
 type PaymentCancelRequest struct {
 	ImpUID        string   `json:"imp_uid"`
-	MerchantUID   string   `json:"merchant_uid"`
+	MerchantUID   *string  `json:"merchant_uid"`
 	Amount        *float64 `json:"amount"`
-	TaxFree       int      `json:"tax_free"`
-	VatAmount     int      `json:"vat_amount"`
-	Checksum      int      `json:"checksum"`
-	Reason        string   `json:"reason"`
-	RefundHolder  string   `json:"refund_holder"`
-	RefundBank    string   `json:"refund_bank"`
-	RefundAccount string   `json:"refund_account"`
-	RefundTel     string   `json:"refund_tel"`
-	RetainPromo   bool     `json:"retain_promotion"`
+	TaxFree       *int     `json:"tax_free"`
+	VatAmount     *int     `json:"vat_amount"`
+	Checksum      *int     `json:"checksum"`
+	Reason        *string  `json:"reason"`
+	RefundHolder  *string  `json:"refund_holder"`
+	RefundBank    *string  `json:"refund_bank"`
+	RefundAccount *string  `json:"refund_account"`
+	RefundTel     *string  `json:"refund_tel"`
+	RetainPromo   *bool    `json:"retain_promotion"`
 	Extra         []struct {
 	} `json:"extra"`
 }

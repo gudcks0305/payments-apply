@@ -62,6 +62,7 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
+	fmt.Println("Bearer " + token)
 
 	logger.Log.Info("[PortOne API 요청] %s %s", method, path)
 

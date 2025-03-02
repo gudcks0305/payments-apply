@@ -43,3 +43,29 @@ sequenceDiagram
 # 프론트엔드 설정
 - 언어 : TypeScript
 - 프레임워크 : Vue
+
+```curl
+curl --request POST \
+  --url https://api.iamport.kr/payments/cancel \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer 9e065a207671a1232d42a99d2530a415043f3c5a' \
+  --data '{
+    "imp_uid": "imp_468132687142",
+  }'
+```
+
+```curl
+curl --request POST \
+  --url https://api.iamport.kr/payments/cancel \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer 9e065a207671a1232d42a99d2530a415043f3c5a' \
+  --data '{"imp_uid": "imp_476422867149"}'
+```
+
+```curl
+curl --request POST \
+  --url https://api.iamport.kr/payments/cancel \
+  --header 'Authorization: Bearer 9e065a207671a1232d42a99d2530a415043f3c5a' \
+  --header 'Content-Type: application/json' \
+  --data '{"imp_uid":"imp_468132687142"}'
+```
