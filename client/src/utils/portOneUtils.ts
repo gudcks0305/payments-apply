@@ -25,19 +25,14 @@ export const requestPayment = (
     return Promise.reject(new Error('PortOne SDK가 로드되지 않았습니다.'));
   }
 
-  return new Promise((resolve, reject) => {
-    
+  return new Promise((resolve) => {
     const requestParams: PortonePaymentRequestParams = {
       ...params,
       channelKey: CHANNEL_KEY,
     };
     
     window.IMP.request_pay(requestParams, (response: PortOnePaymentResponse) => {
-      if (response.success) {
-        resolve(response);
-      } else {
-        reject(new Error(response.error_msg || '결제에 실패했습니다.'));
-      }
+      resolve(response);
     });
   });
 }; 

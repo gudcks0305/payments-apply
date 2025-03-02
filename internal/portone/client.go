@@ -12,14 +12,21 @@ import (
 	"github.com/gudcks0305/payments-apply/pkg/logger"
 )
 
+type POClient interface {
+	GetPayment(id string, respBody *APIResponse[PaymentData]) error
+	CancelPayment(reqBody PaymentCancelRequest, respBody *APIResponse[PaymentData]) error
+	Do(method, path string, reqBody interface{}, respBody interface{}) error
+	Get(path string, respBody interface{}) error
+	Post(path string, reqBody interface{}, respBody interface{}) error
+}
+
 type Client struct {
 	config      *config.Config
 	httpClient  *http.Client
 	authService *AuthService
 }
 
-// NewClient 는 새 Client 인스턴스를 생성합니다
-func NewClient(config *config.Config) *Client {
+func NewClient(config *config.Config) POClient {
 	authService := NewAuthService(config)
 	return &Client{
 		config:      config,

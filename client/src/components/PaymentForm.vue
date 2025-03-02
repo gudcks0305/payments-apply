@@ -101,29 +101,32 @@ const handleInitPayment = async () => {
 
 const proceedToPayment = async () => {
   console.log('결제 진행: 결제 ID', merchantUid.value, '주문번호', merchantUid.value);
-  const response = await requestPayment({
-    merchant_uid: payment.merchantUid,
-    name: payment.productName,
-    amount: payment.amount,
-    pay_method: 'card',
-    buyer_email: 'test@test.com',
-    buyer_name: '홍길동',
-    buyer_tel: '01012345678',
-    buyer_addr: '서울특별시 강남구 테헤란로 14길 6 남도빌딩 2층',
-    buyer_postcode: '12345'
-  });
-  console.log(response);
+  
+  try {
+    const response = await requestPayment({
+      merchant_uid: payment.merchantUid,
+      name: payment.productName,
+      amount: payment.amount,
+      pay_method: 'card',
+      buyer_email: 'test@test.com',
+      buyer_name: '홍길동',
+      buyer_tel: '01012345678',
+      buyer_addr: '서울특별시 강남구 테헤란로 14길 6 남도빌딩 2층',
+      buyer_postcode: '12345'
+    });
+    
+    console.log(response);
 
-  if (response.success) {
-    const confirmedPayment = await completePayment(response);
-    console.log(confirmedPayment);
-    if (confirmedPayment instanceof Error) {
-      alert('결제에 실패 하였습니다.' + confirmedPayment);
-    } else {
+    if (response.success) {
+      const confirmedPayment = await completePayment(response);
+      console.log(confirmedPayment);
       alert('결제가 성공적으로 처리 되었습니다.');
+    } else {
+      alert(`결제에 실패했습니다: ${response.error_msg}`);
     }
-  } else {
-    alert(response.error_msg);
+  } catch (error) {
+    console.error('결제 처리 중 오류 발생:', error);
+    alert('결제 진행 중 오류가 발생했습니다: ' + (error instanceof Error ? error.message : String(error)));
   }
 };
 </script>

@@ -13,10 +13,10 @@ import (
 
 type PaymentService struct {
 	repository    *repository.PaymentRepository
-	portoneClient *portone.Client
+	portoneClient portone.POClient
 }
 
-func NewPaymentService(repository *repository.PaymentRepository, portoneClient *portone.Client) *PaymentService {
+func NewPaymentService(repository *repository.PaymentRepository, portoneClient portone.POClient) *PaymentService {
 	return &PaymentService{repository: repository, portoneClient: portoneClient}
 }
 
