@@ -23,10 +23,11 @@ sequenceDiagram
   Note right of server: 클라이언트, 결제 서버 ID 저장 및 화면에 전달
   client->>externalAPI: 결제 요청 (결제 서버 ID 포함)
   Note left of client: 결제 요청을 externalAPI에 전달
-  externalAPI->>client: 응답 (redirect URL 포함)
+  externalAPI->>client: 응답
   client->>client: redirect to 결제 완료 페이지
   client->>server: 결제 완료 상태 complete API 요청 (결제 서버 ID 포함)
-  Note right of client: 결제 서버 ID를 서버에 전달하여 complete API 호출
+  Note right of client: 결제 Imp ID를 서버에 전달하여 complete API 호출
+  externalAPI->>server: 결제 완료 상태 응답
   server->>server: 결제 상태 확인 및 최종 처리
   server->>client: 결제 완료 상태 응답
 
@@ -44,28 +45,15 @@ sequenceDiagram
 - 언어 : TypeScript
 - 프레임워크 : Vue
 
-```curl
-curl --request POST \
-  --url https://api.iamport.kr/payments/cancel \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer 9e065a207671a1232d42a99d2530a415043f3c5a' \
-  --data '{
-    "imp_uid": "imp_468132687142",
-  }'
-```
 
-```curl
-curl --request POST \
-  --url https://api.iamport.kr/payments/cancel \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer 9e065a207671a1232d42a99d2530a415043f3c5a' \
-  --data '{"imp_uid": "imp_476422867149"}'
-```
+## 실행 방법 
+```shell
+# make .env file @see .env.example
+touch "PAYMENTS_PORTONE_IMP_KEY=YOUR_IMP_KEY" \
+      "PAYMENTS_PORTONE_IMP_SECRET=YOUR_IMP_SECRET" \
+        "PAYMENTS_PORTONE_SERVER_PORT=8080" \
+     > .env
 
-```curl
-curl --request POST \
-  --url https://api.iamport.kr/payments/cancel \
-  --header 'Authorization: Bearer 9e065a207671a1232d42a99d2530a415043f3c5a' \
-  --header 'Content-Type: application/json' \
-  --data '{"imp_uid":"imp_468132687142"}'
+# run docker 
+docker-compose up -d
 ```
