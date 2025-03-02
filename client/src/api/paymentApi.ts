@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ref } from 'vue';
-import { PortOneResponse } from '../types/payment';
+import { PaymentData, PortOnePaymentResponse } from '../types/payment';
 
 interface PaymentInitResponse {
   merchantUid: string;
@@ -51,9 +51,9 @@ export function usePaymentApi() {
   };
 } 
 
-export const completePayment = async (paymentData: PortOneResponse): Promise<PortOneResponse | null> => {
+export const completePayment = async (paymentData: PortOnePaymentResponse): Promise<PaymentData | null> => {
   try {
-    const response = await axios.put<PortOneResponse>(
+    const response = await axios.put<PaymentData>(
       `${import.meta.env.VITE_BASE_URL}/api/v1/payments/${paymentData.merchant_uid}/complete`,
       paymentData
     );

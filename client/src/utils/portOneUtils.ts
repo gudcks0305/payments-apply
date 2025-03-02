@@ -1,4 +1,4 @@
-import { PaymentRequestParams, PortOneResponse } from '../types/payment';
+import { PortonePaymentRequestParams, PortOnePaymentResponse } from '../types/payment';
 
 const PORTONE_SHOP_ID = import.meta.env.VITE_PORTONE_SHOP_ID;
 const CHANNEL_KEY = import.meta.env.VITE_CHANNEL_KEY;
@@ -19,20 +19,20 @@ export const initPortOne = (): void => {
 
 
 export const requestPayment = (
-  params: Omit<PaymentRequestParams, 'channelKey'>
-): Promise<PortOneResponse> => {
+  params: Omit<PortonePaymentRequestParams, 'channelKey'>
+): Promise<PortOnePaymentResponse> => {
   if (!window.IMP) {
     return Promise.reject(new Error('PortOne SDK가 로드되지 않았습니다.'));
   }
 
   return new Promise((resolve, reject) => {
     
-    const requestParams: PaymentRequestParams = {
+    const requestParams: PortonePaymentRequestParams = {
       ...params,
       channelKey: CHANNEL_KEY,
     };
     
-    window.IMP.request_pay(requestParams, (response: PortOneResponse) => {
+    window.IMP.request_pay(requestParams, (response: PortOnePaymentResponse) => {
       if (response.success) {
         resolve(response);
       } else {

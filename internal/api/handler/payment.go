@@ -35,7 +35,7 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 }
 
 func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
-	var paymentData *portone.PaymentData
+	var paymentData *portone.PaymentClientResponse
 	if err := c.ShouldBindJSON(&paymentData); err != nil {
 		appErr := errors.MapError(err)
 		c.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})

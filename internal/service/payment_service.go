@@ -34,9 +34,9 @@ func (s *PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdResp
 	return &dto.IdResponse[uuid.UUID]{ID: payment.ID}, nil
 }
 
-func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (interface{}, error) {
+func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResponse) (interface{}, error) {
 	var result = &portone.APIResponse[portone.PaymentData]{}
-	err := s.portoneClient.GetPayment(p.ImpUID, result)
+	err := s.portoneClient.GetPayment(p.ImpUid, result)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +48,9 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (int
 	}
 	if res.Status == "paid" {
 		cancelReq := portone.PaymentCancelRequest{
-			ImpUID:      p.ImpUID,
+			ImpUID:      p.ImpUid,
 			MerchantUID: res.MerchantUID,
-			Amount:      res.PaidAmount,
+			Amount:      res.Amount,
 			Reason:      "TEST",
 		}
 		resp := &portone.APIResponse[portone.PaymentData]{}
@@ -58,7 +58,7 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentData) (int
 		if err != nil {
 			return nil, err
 		}
-		err = s.UpdatePaymentModel(p)
+		err = s.UpdatePaymentModel(&resp.Response)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func (s *PaymentService) GetPaymentByIMPUID(impUID string) (interface{}, error) 
 	return res.Response, nil
 }
 
-func validate(d, res *portone.PaymentData) error {
+func validate(d *portone.PaymentClientResponse, res *portone.PaymentData) error {
 	if d.PaidAmount != res.Amount {
 		return errors.ErrInvalidAmount
 	}
