@@ -65,8 +65,8 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { completePayment, usePaymentApi } from '../api/paymentApi';
+import { PortOnePaymentResponse } from '../types/payment';
 import { requestPayment } from '../utils/portOneUtils';
-
 const router = useRouter();
 
 const { merchantUid, initializePayment } = usePaymentApi();
@@ -118,7 +118,7 @@ const proceedToPayment = async () => {
     console.log(response);
 
     if (response.success) {
-      const confirmedPayment = await completePayment(response);
+      const confirmedPayment = await handlePaymentComplete(response);
       console.log(confirmedPayment);
     } else {
       alert(`결제에 실패했습니다: ${response.error_msg}`);
@@ -143,6 +143,7 @@ const handlePaymentComplete = async (paymentData: PortOnePaymentResponse) => {
     
     // 결제 성공 처리
     console.log('결제 완료:', result);
+    alert('결제가 성공적으로 처리 되었습니다.');
     // 추가 성공 로직
   } catch (error) {
     // 예상치 못한 오류 처리

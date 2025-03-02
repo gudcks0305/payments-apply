@@ -26,8 +26,6 @@ services:
     environment:
       - GIN_MODE=debug
       - PAYMENTS_SERVER_PORT=8080
-      - PAYMENTS_PORTONE_IMP_KEY=1627800385680846
-      - PAYMENTS_PORTONE_IMP_SECRET=bkAgaB4g0zGoWX8zcA84IgLPXdqd3pj0IAcedW4wKvINoinagta7LzgCpckhD5N3ieZuvUx1ATpzYTnw
       - PAYMENTS_PORTONE_BASE_URL=https://api.iamport.kr
 
 
