@@ -30,9 +30,9 @@ export function usePaymentApi() {
       );
       
       // 서버에서 받은 결제 ID와 상점 거래 ID를 저장
-      merchantUid.value = response.data.data.id;
+      merchantUid.value = response.data.merchantUid;
       
-      console.log('결제 초기화 성공:', response.data.data.id);
+      console.log('결제 초기화 성공:', response.data.merchantUid);
       return true;
     } catch (err) {
       console.error('결제 초기화 실패:', err);
