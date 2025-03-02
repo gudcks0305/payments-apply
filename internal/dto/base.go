@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/gudcks0305/payments-apply/internal/errors"
+
 type APIResponse[T any] struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -16,4 +18,9 @@ func APIResponseSuccess[T any](data T) APIResponse[T] {
 
 func APIResponseCreated[T any](response T) APIResponse[T] {
 	return APIResponse[T]{Code: 201, Message: "Created", Data: response}
+}
+
+func APIResponseError[T any](appError errors.AppError) APIResponse[T] {
+	return APIResponse[T]{Code: appError.StatusCode, Message: appError.Message}
+
 }

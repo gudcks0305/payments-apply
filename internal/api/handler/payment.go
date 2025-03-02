@@ -20,14 +20,14 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 	var paymentRequest dto.PaymentCreateRequest
 	if err := c.ShouldBindJSON(&paymentRequest); err != nil {
 		appErr := errors.MapError(err)
-		c.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return
 	}
 
 	payment, err := ph.paymentService.CreatePayment(&paymentRequest)
 	if err != nil {
 		appErr := errors.MapError(err)
-		c.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return
 	}
 
@@ -38,14 +38,14 @@ func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
 	var paymentData *portone.PaymentClientResponse
 	if err := c.ShouldBindJSON(&paymentData); err != nil {
 		appErr := errors.MapError(err)
-		c.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return
 	}
 
 	payment, err := ph.paymentService.ConfirmWithCompletePayment(paymentData)
 	if err != nil {
 		appErr := errors.MapError(err)
-		c.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return
 	}
 
@@ -57,7 +57,7 @@ func (ph *PaymentHandler) GetPaymentByImpUID(context *gin.Context) {
 	payment, err := ph.paymentService.GetPaymentByIMPUID(impUID)
 	if err != nil {
 		appErr := errors.MapError(err)
-		context.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		context.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return
 	}
 
@@ -69,7 +69,7 @@ func (ph *PaymentHandler) CancelPaymentByImpUID(context *gin.Context) {
 	payment, err := ph.paymentService.CancelPaymentByIMPUID(impUID)
 	if err != nil {
 		appErr := errors.MapError(err)
-		context.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		context.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return
 	}
 

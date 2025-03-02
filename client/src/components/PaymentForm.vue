@@ -80,7 +80,7 @@ const payment = reactive({
 
 const handleInitPayment = async () => {
   if (!payment.amount || payment.amount < 100) {
-    alert('결제 금액은 최소 100원 이상이어야 합니다.');
+      alert('결제 금액은 최소 100원 이상이어야 합니다.');
     return;
   }
   
@@ -120,13 +120,34 @@ const proceedToPayment = async () => {
     if (response.success) {
       const confirmedPayment = await completePayment(response);
       console.log(confirmedPayment);
-      alert('결제가 성공적으로 처리 되었습니다.');
     } else {
       alert(`결제에 실패했습니다: ${response.error_msg}`);
     }
   } catch (error) {
     console.error('결제 처리 중 오류 발생:', error);
     alert('결제 진행 중 오류가 발생했습니다: ' + (error instanceof Error ? error.message : String(error)));
+  }
+};
+
+const handlePaymentComplete = async (paymentData: PortOnePaymentResponse) => {
+  try {
+    const result = await completePayment(paymentData);
+    
+    if (result instanceof Error) {
+      // completePayment 내부에서 이미 alert를 표시했지만
+      // 여기서 추가적인 UI 처리를 할 수 있습니다
+      console.error('결제 확인 실패:', result.message);
+      // 결제 실패 후 UI 처리 로직
+      return;
+    }
+    
+    // 결제 성공 처리
+    console.log('결제 완료:', result);
+    // 추가 성공 로직
+  } catch (error) {
+    // 예상치 못한 오류 처리
+    console.error('예상치 못한 오류:', error);
+    alert('예상치 못한 오류가 발생했습니다.');
   }
 };
 </script>
