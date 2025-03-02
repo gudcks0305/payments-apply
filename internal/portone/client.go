@@ -101,5 +101,12 @@ func (c *Client) GetPayment(id string, respBody *APIResponse[PaymentData]) error
 }
 
 func (c *Client) CancelPayment(reqBody PaymentCancelRequest, respBody *APIResponse[PaymentData]) error {
-	return c.Do(http.MethodPost, "/payments/cancel", reqBody, respBody)
+	err := c.Do(http.MethodPost, "/payments/cancel", reqBody, respBody)
+	if err != nil {
+		return err
+	}
+	if respBody.Code != 0 {
+		return errors.New(respBody.Message)
+	}
+	return nil
 }

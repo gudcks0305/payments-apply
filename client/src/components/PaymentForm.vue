@@ -117,8 +117,8 @@ const proceedToPayment = async () => {
   if (response.success) {
     const confirmedPayment = await completePayment(response);
     console.log(confirmedPayment);
-    if (confirmedPayment === null) {
-      alert('결제에 실패 하였습니다.');
+    if (confirmedPayment instanceof Error) {
+      alert('결제에 실패 하였습니다.' + confirmedPayment);
     } else {
       alert('결제가 성공적으로 처리 되었습니다.');
     }

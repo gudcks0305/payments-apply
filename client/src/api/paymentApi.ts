@@ -51,7 +51,7 @@ export function usePaymentApi() {
   };
 } 
 
-export const completePayment = async (paymentData: PortOnePaymentResponse): Promise<PaymentData | null> => {
+export const completePayment = async (paymentData: PortOnePaymentResponse): Promise<PaymentData | Error> => {
   try {
     const response = await axios.put<PaymentData>(
       `${import.meta.env.VITE_BASE_URL}/api/v1/payments/${paymentData.merchant_uid}/complete`,
@@ -59,9 +59,23 @@ export const completePayment = async (paymentData: PortOnePaymentResponse): Prom
     );
 
     return response.data;
-  } catch (err) {
+  } catch (err: any) {
     console.error('결제 확인 실패:', err);
-    return null;
+
+    let errorMessage = '서버 에러가 발생했습니다. 결제 확인에 실패했습니다.'; // 기본 에러 메시지
+
+    if (err.response) {
+      const responseData = err.response.data;
+
+      if (typeof responseData === 'string') {
+        errorMessage = `서버 에러: ${responseData}`;
+      } else if (responseData && responseData.error) {
+        errorMessage = `서버 에러: ${responseData.error}`;
+      } else {
+        errorMessage = `서버 에러: ${err.response.status} - ${err.response.statusText}`;
+      }
+    }
+    return new Error(errorMessage);
   }
 
 };

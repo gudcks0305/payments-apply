@@ -46,11 +46,12 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResp
 	if err != nil {
 		return nil, err
 	}
+	err = s.UpdatePaymentModel(&res, model.StatusPending)
+
 	if res.Status == "paid" {
 		cancelReq := portone.PaymentCancelRequest{
 			ImpUID:      p.ImpUid,
 			MerchantUID: res.MerchantUID,
-			Amount:      res.Amount,
 			Reason:      "TEST",
 		}
 		resp := &portone.APIResponse[portone.PaymentData]{}
@@ -58,23 +59,23 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResp
 		if err != nil {
 			return nil, err
 		}
-		err = s.UpdatePaymentModel(&resp.Response)
+		err = s.UpdatePaymentModel(&resp.Response, model.StatusCancelled)
 		if err != nil {
 			return nil, err
 		}
 		// 취소 Resp 가 제대로 내려가지 않으니 확인 필요
 		return resp.Response, nil
 	}
-
+	err = s.UpdatePaymentModel(&res, model.StatusCompleted)
 	return res, nil
 }
 
-func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData) error {
+func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData, statusType model.PaymentStatusType) error {
 	tx := s.repository.DB.Begin()
 
 	id, _ := uuid.Parse(p.MerchantUID)
 	paymentModel, _ := s.repository.GetPaymentByID(id)
-	paymentModel.Status = model.StatusCancelled
+	paymentModel.Status = statusType
 	paymentModel.ImpUID = p.ImpUID
 
 	err := tx.Save(paymentModel).Error
@@ -93,6 +94,25 @@ func (s *PaymentService) GetPaymentByIMPUID(impUID string) (interface{}, error) 
 		return nil, errors2.Wrap(errors.ErrPortOneError, err.Error())
 	}
 	return res.Response, nil
+}
+
+func (s *PaymentService) CancelPaymentByIMPUID(uid string) (interface{}, error) {
+	var res = &portone.APIResponse[portone.PaymentData]{}
+	err := s.portoneClient.GetPayment(uid, res)
+	if err != nil {
+		return nil, errors2.Wrap(errors.ErrPortOneError, err.Error())
+	}
+	cancelReq := portone.PaymentCancelRequest{
+		ImpUID:      uid,
+		MerchantUID: res.Response.MerchantUID,
+		Reason:      "TEST",
+	}
+	resp := &portone.APIResponse[portone.PaymentData]{}
+	err = s.portoneClient.CancelPayment(cancelReq, resp)
+	if err != nil {
+		return nil, errors2.Wrap(errors.ErrPortOneError, err.Error())
+	}
+	return resp.Response, nil
 }
 
 func validate(d *portone.PaymentClientResponse, res *portone.PaymentData) error {

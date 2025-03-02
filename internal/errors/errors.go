@@ -99,7 +99,7 @@ func MapError(err error) AppError {
 		return AppError{
 			Err:        err,
 			StatusCode: http.StatusInternalServerError,
-			Message:    "internal server error" + err.Error(),
+			Message:    err.Error(),
 		}
 	}
 }

@@ -63,3 +63,15 @@ func (ph *PaymentHandler) GetPaymentByImpUID(context *gin.Context) {
 
 	context.JSON(200, dto.APIResponseSuccess(payment))
 }
+
+func (ph *PaymentHandler) CancelPaymentByImpUID(context *gin.Context) {
+	impUID := context.Param("impUID")
+	payment, err := ph.paymentService.CancelPaymentByIMPUID(impUID)
+	if err != nil {
+		appErr := errors.MapError(err)
+		context.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
+		return
+	}
+
+	context.JSON(200, dto.APIResponseSuccess(payment))
+}
