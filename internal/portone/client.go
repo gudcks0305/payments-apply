@@ -88,7 +88,7 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		errResp := ErrorResponse{}
 		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil {
-			return fmt.Errorf("API 오류 응답 (상태 코드: %d)", resp.Status+err.Error())
+			return fmt.Errorf("API 오류 응답 (상태 코드: %d): %w", resp.StatusCode, err)
 		}
 		return errors.New(errResp.Message)
 	}

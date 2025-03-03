@@ -29,7 +29,7 @@ sequenceDiagram
   Note right of client: 결제 Imp ID를 서버에 전달하여 complete API 호출
   externalAPI->>server: 결제 완료 상태 응답
   server->>server: 결제 상태 확인 및 최종 처리
-  server->>client: 결제 완료 상태 응답
+  server->>client: 결제 상태 응답
 
   alt 동일 결제 ID로 이미 완료된 결제 존재
     server->>externalAPI: 결제 취소 요청 (결제 서버 ID 포함)
@@ -60,3 +60,6 @@ docker-compose up -d
 ```
 http://localhost:3000 접속 후 결제 요청
 
+## API 문서
+@see
+http://localhost:8080/swagger-ui/index.html

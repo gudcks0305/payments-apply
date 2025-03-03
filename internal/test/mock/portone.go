@@ -1,10 +1,11 @@
 package mock
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/gudcks0305/payments-apply/internal/portone"
 	"github.com/gudcks0305/payments-apply/internal/utils"
-	"time"
 )
 
 type MockClient struct {
@@ -29,7 +30,23 @@ func NewMockClient() portone.POClient {
 		MockCancelPayment: func(reqBody portone.PaymentCancelRequest, respBody *portone.APIResponse[portone.PaymentData]) error {
 			respBody.Code = 0
 			respBody.Message = "OK"
-			respBody.Response = MockPayData[reqBody.ImpUID]
+
+			paymentData := MockPayData[reqBody.ImpUID]
+			paymentData.Status = "cancelled"
+
+			cancelledAt := int(time.Now().Unix())
+			paymentData.CancelledAt = &cancelledAt
+
+			if reqBody.Reason != nil {
+				paymentData.CancelReason = reqBody.Reason
+			} else {
+				reason := "테스트 취소"
+				paymentData.CancelReason = &reason
+			}
+
+			respBody.Response = paymentData
+			MockPayData[reqBody.ImpUID] = paymentData
+
 			return nil
 		},
 	}

@@ -19,7 +19,7 @@ type Payment struct {
 	ID          uuid.UUID `gorm:"primaryKey;type:varchar(36)"` // MerchantUID
 	ImpUID      string    `gorm:"index"`
 	ProductName string
-	Amount      int
+	Amount      uint
 	Status      PaymentStatusType `gorm:"default:pending"`
 	PayMethod   string            `gorm:"default:card"`
 	ErrCode     string            `gorm:"default:"`
