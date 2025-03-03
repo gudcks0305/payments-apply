@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gudcks0305/payments-apply/internal/test/integration"
+	"github.com/gudcks0305/payments-apply/internal/test/mock"
 	"github.com/gudcks0305/payments-apply/pkg/logger"
 	"net/http"
 	"net/http/httptest"
@@ -47,11 +48,12 @@ func TestPaymentFlow(t *testing.T) {
 
 		// 2. 결제 완료 테스트
 		t.Run("Complete Payment", func(t *testing.T) {
+			paidMock := mock.MockPayData[mock.PaidMock]
 			completePayload := portone.PaymentClientResponse{
-				ImpUid:        "imp_347242536261",
+				ImpUid:        paidMock.ImpUID,
 				MerchantUid:   merchantUid,
 				PayMethod:     "card",
-				PaidAmount:    10000,
+				PaidAmount:    paidMock.Amount,
 				Status:        "paid",
 				Name:          "당근 10kg",
 				PgProvider:    "kcp",
