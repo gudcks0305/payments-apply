@@ -60,8 +60,16 @@ EOF
 # run docker 
 docker-compose up -d
 ```
+
 http://localhost:3000 접속 후 결제 요청
 
 ## API 문서
 @see
 http://localhost:8080/swagger-ui/index.html
+
+### API 목록
+- POST api/v1/payments : 결제 기본 정보 생성 ( id 채번 및 기록 용 )
+- PUT api/v1/payments/complete : 요구사항을 가장 basic 하게 구현한 api 
+- GET api/v1/payments/imp/:impId : impId로 결제 정보 조회 ( 외부 API 호출 테스트 용 )
+- POST api/v1/payments/imp/:impId/cancel : impId로 결제 취소 ( 외부 API 호출 테스트 용 )
+- POST api/v1/payments/{merchantId}/cancel : merchantId로 결제 취소 ( 공식 문서 validate 참고 및 데이터 베이스 데이터 상태 변경 )
