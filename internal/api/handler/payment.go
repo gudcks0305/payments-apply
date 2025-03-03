@@ -78,12 +78,12 @@ func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
 }
 
 // GetPaymentByImpUID godoc
-// @Summary 아임포트 UID로 결제 조회
-// @Description 아임포트 UID를 사용하여 결제 정보를 조회합니다
+// @Summary ptone UID로 결제 조회
+// @Description ptone UID를 사용하여 결제 정보를 조회합니다
 // @Tags payments
 // @Accept json
 // @Produce json
-// @Param impUID path string true "아임포트 UID"
+// @Param impUID path string true "ptone UID"
 // @Router /payments/imp/{impUID} [get]
 // @Success 200 {object} dto.APIResponse[portone.PaymentData] "Success"
 func (ph *PaymentHandler) GetPaymentByImpUID(context *gin.Context) {
@@ -99,12 +99,12 @@ func (ph *PaymentHandler) GetPaymentByImpUID(context *gin.Context) {
 }
 
 // CancelPaymentByImpUID godoc
-// @Summary 아임포트 UID로 결제 취소
-// @Description 아임포트 UID를 사용하여 결제를 취소합니다
+// @Summary ptone UID로 결제 취소
+// @Description ptone UID를 사용하여 결제를 취소합니다
 // @Tags payments
 // @Accept json
 // @Produce json
-// @Param impUID path string true "아임포트 UID"
+// @Param impUID path string true "ptone UID"
 // @Router /payments/imp/{impUID}/cancel [post]
 // @Success 200 {object} dto.APIResponse[portone.PaymentData] "Success"
 func (ph *PaymentHandler) CancelPaymentByImpUID(context *gin.Context) {
