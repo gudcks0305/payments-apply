@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gudcks0305/payments-apply/internal/dto"
 	"github.com/gudcks0305/payments-apply/internal/errors"
@@ -35,6 +36,7 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 }
 
 func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
+	id := c.Param("id")
 	var paymentData *portone.PaymentClientResponse
 	if err := c.ShouldBindJSON(&paymentData); err != nil {
 		appErr := errors.MapError(err)
@@ -42,8 +44,9 @@ func (ph *PaymentHandler) ConfirmWithCompletePayment(c *gin.Context) {
 		return
 	}
 
-	payment, err := ph.paymentService.ConfirmWithCompletePayment(paymentData)
+	payment, err := ph.paymentService.ConfirmWithCompletePayment(id, paymentData)
 	if err != nil {
+		fmt.Println(err)
 		appErr := errors.MapError(err)
 		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
 		return

@@ -34,7 +34,7 @@ func (s *PaymentService) CreatePayment(d *dto.PaymentCreateRequest) (*dto.IdResp
 	return &dto.IdResponse[uuid.UUID]{ID: payment.ID}, nil
 }
 
-func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResponse) (interface{}, error) {
+func (s *PaymentService) ConfirmWithCompletePayment(id string, p *portone.PaymentClientResponse) (interface{}, error) {
 	var result = &portone.APIResponse[portone.PaymentData]{}
 	err := s.portoneClient.GetPayment(p.ImpUid, result)
 	if err != nil {
@@ -46,12 +46,12 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResp
 	if err != nil {
 		return nil, err
 	}
-	err = s.UpdatePaymentModel(&res, model.StatusPending)
+	err = s.UpdatePaymentModel(id, &res, model.StatusPending)
 
 	if res.Status == "paid" {
 		cancelReq := portone.PaymentCancelRequest{
 			ImpUID:      p.ImpUid,
-			MerchantUID: &res.MerchantUID,
+			MerchantUID: &p.MerchantUid,
 			Reason:      nil,
 		}
 		resp := &portone.APIResponse[portone.PaymentData]{}
@@ -59,22 +59,22 @@ func (s *PaymentService) ConfirmWithCompletePayment(p *portone.PaymentClientResp
 		if err != nil {
 			return nil, err
 		}
-		err = s.UpdatePaymentModel(&resp.Response, model.StatusCancelled)
+		err = s.UpdatePaymentModel(id, &resp.Response, model.StatusCancelled)
 		if err != nil {
 			return nil, err
 		}
 		// 취소 Resp 가 제대로 내려가지 않으니 확인 필요
 		return resp.Response, nil
 	}
-	err = s.UpdatePaymentModel(&res, model.StatusCompleted)
+	err = s.UpdatePaymentModel(id, &res, model.StatusCompleted)
 	return res, nil
 }
 
-func (s *PaymentService) UpdatePaymentModel(p *portone.PaymentData, statusType model.PaymentStatusType) error {
+func (s *PaymentService) UpdatePaymentModel(id string, p *portone.PaymentData, statusType model.PaymentStatusType) error {
 	tx := s.repository.DB.Begin()
 
-	id, _ := uuid.Parse(p.MerchantUID)
-	paymentModel, _ := s.repository.GetPaymentByID(id)
+	uuids, _ := uuid.Parse(id)
+	paymentModel, _ := s.repository.GetPaymentByID(uuids)
 	paymentModel.Status = statusType
 	paymentModel.ImpUID = p.ImpUID
 

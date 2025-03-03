@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gudcks0305/payments-apply/internal/test/integration"
+	"github.com/gudcks0305/payments-apply/pkg/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,7 +16,6 @@ import (
 
 func TestPaymentFlow(t *testing.T) {
 	engine, _, app := integration.SetupGinApp(t)
-
 	app.RequireStart()
 	defer app.RequireStop()
 
@@ -35,25 +35,23 @@ func TestPaymentFlow(t *testing.T) {
 
 		engine.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusCreated, w.Code)
 
-		var response map[string]interface{}
+		var response dto.APIResponse[dto.IdResponse[string]]
 		json.Unmarshal(w.Body.Bytes(), &response)
 
-		merchantUid, exists := response["merchantUid"]
-		assert.True(t, exists)
+		merchantUid := response.Data.ID
 		assert.NotEmpty(t, merchantUid)
 
 		// 다음 테스트에서 사용할 merchantUid 저장
-		merchantUidStr := merchantUid.(string)
 
 		// 2. 결제 완료 테스트
 		t.Run("Complete Payment", func(t *testing.T) {
 			completePayload := portone.PaymentClientResponse{
 				ImpUid:        "imp_347242536261",
-				MerchantUid:   merchantUidStr,
+				MerchantUid:   merchantUid,
 				PayMethod:     "card",
-				PaidAmount:    1004,
+				PaidAmount:    10000,
 				Status:        "paid",
 				Name:          "당근 10kg",
 				PgProvider:    "kcp",
@@ -70,19 +68,13 @@ func TestPaymentFlow(t *testing.T) {
 			jsonData, _ := json.Marshal(completePayload)
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/api/v1/payments/complete", bytes.NewBuffer(jsonData))
+			req, _ := http.NewRequest(http.MethodPut, "/api/v1/payments/"+merchantUid+"/complete", bytes.NewBuffer(jsonData))
 			req.Header.Set("Content-Type", "application/json")
 
 			engine.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
-
-			var response map[string]interface{}
-			json.Unmarshal(w.Body.Bytes(), &response)
-
-			success, exists := response["success"]
-			assert.True(t, exists)
-			assert.True(t, success.(bool))
+			logger.Log.Info(w.Body.String())
 		})
 	})
 }

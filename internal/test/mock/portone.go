@@ -18,13 +18,21 @@ func NewMockClient() portone.POClient {
 		MockGetPayment: func(id string, respBody *portone.APIResponse[portone.PaymentData]) error {
 			respBody.Code = 0
 			respBody.Message = "OK"
-			respBody.Response = portone.PaymentData{}
+			respBody.Response = portone.PaymentData{
+				ImpUID:      id,
+				MerchantUID: respBody.Response.MerchantUID,
+				Amount:      10000,
+				Status:      "paid",
+			}
 			return nil
 		},
 		MockCancelPayment: func(reqBody portone.PaymentCancelRequest, respBody *portone.APIResponse[portone.PaymentData]) error {
 			respBody.Code = 0
 			respBody.Message = "OK"
-			respBody.Response = portone.PaymentData{}
+			respBody.Response = portone.PaymentData{
+				ImpUID: reqBody.ImpUID,
+				Amount: 10000,
+			}
 			return nil
 		},
 	}
