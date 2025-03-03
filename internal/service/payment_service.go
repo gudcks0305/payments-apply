@@ -70,6 +70,31 @@ func (s *PaymentService) ConfirmWithCompletePayment(id string, p *portone.Paymen
 	return res, nil
 }
 
+func (s *PaymentService) ConfirmWithCompletePaymentBasic(p *dto.PaymentBasicConfirmRequest) (portone.PaymentData, error) {
+	var result = &portone.APIResponse[portone.PaymentData]{}
+	err := s.portoneClient.GetPayment(p.ImpUID, result)
+	if err != nil {
+		return portone.PaymentData{}, err
+	}
+
+	res := result.Response
+
+	if res.Status == "paid" {
+		cancelReq := portone.PaymentCancelRequest{
+			ImpUID:      res.ImpUID,
+			MerchantUID: &res.MerchantUID,
+			Reason:      nil,
+		}
+		resp := &portone.APIResponse[portone.PaymentData]{}
+		err := s.portoneClient.CancelPayment(cancelReq, resp)
+		if err != nil {
+			return portone.PaymentData{}, err
+		}
+		return resp.Response, nil
+	}
+	return res, nil
+}
+
 func (s *PaymentService) UpdatePaymentModel(id string, p *portone.PaymentData, statusType model.PaymentStatusType) error {
 	tx := s.repository.DB.Begin()
 

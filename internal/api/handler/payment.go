@@ -2,9 +2,9 @@ package handler
 
 import (
 	"fmt"
+	"github.com/gudcks0305/payments-apply/internal/dto"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gudcks0305/payments-apply/internal/dto"
 	"github.com/gudcks0305/payments-apply/internal/errors"
 	"github.com/gudcks0305/payments-apply/internal/portone"
 	"github.com/gudcks0305/payments-apply/internal/service"
@@ -117,4 +117,32 @@ func (ph *PaymentHandler) CancelPaymentByImpUID(context *gin.Context) {
 	}
 
 	context.JSON(200, dto.APIResponseSuccess(payment))
+}
+
+// ConfirmWithCompletePaymentBasic godoc
+// @Summary 결제 완료 확인 (Basic)
+// @Description 지정된 ID의 결제가 paid 상태면 취소하고 그렇지 않은경우 외부 api 값을 그대로 내립니다.
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param payment body dto.PaymentBasicConfirmRequest true "결제 확인 데이터"
+// @Router /payments/complete [put]
+// @Success 200 {object} dto.APIResponse[portone.PaymentData] "Success"
+func (ph *PaymentHandler) ConfirmWithCompletePaymentBasic(c *gin.Context) {
+	var paymentConfirmReq *dto.PaymentBasicConfirmRequest
+	if err := c.ShouldBindJSON(&paymentConfirmReq); err != nil {
+		appErr := errors.MapError(err)
+		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
+		return
+	}
+
+	payment, err := ph.paymentService.ConfirmWithCompletePaymentBasic(paymentConfirmReq)
+	if err != nil {
+		fmt.Println(err)
+		appErr := errors.MapError(err)
+		c.JSON(appErr.StatusCode, dto.APIResponseError[string](appErr))
+		return
+	}
+
+	c.JSON(200, dto.APIResponseSuccess(payment))
 }

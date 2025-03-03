@@ -60,7 +60,6 @@ export const completePayment = async (paymentData: PortOnePaymentResponse): Prom
     );
     if (response.data.code >= 400) {
       const error = new Error(response.data.message);
-      alert(`결제 처리 중 오류가 발생했습니다: ${response.data.message}`);
       return error;
     }
 
@@ -84,8 +83,6 @@ export const completePayment = async (paymentData: PortOnePaymentResponse): Prom
       }
     }
     
-    // 에러 발생 시 즉시 alert 표시
-    alert(errorMessage);
     return new Error(errorMessage);
   }
 };

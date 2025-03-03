@@ -91,20 +91,6 @@ func TestPaymentFlow(t *testing.T) {
 				logger.Log.Info("결제 조회 성공: " + w.Body.String())
 			})
 
-			t.Run("Cancel Payment By ImpUID", func(t *testing.T) {
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest(http.MethodPost, "/api/v1/payments/imp/"+paidMock.ImpUID+"/cancel", nil)
-
-				engine.ServeHTTP(w, req)
-
-				assert.Equal(t, http.StatusOK, w.Code)
-
-				var response dto.APIResponse[portone.PaymentData]
-				json.Unmarshal(w.Body.Bytes(), &response)
-
-				assert.Equal(t, "cancelled", response.Data.Status)
-				logger.Log.Info("결제 취소 성공: " + w.Body.String())
-			})
 		})
 	})
 }
@@ -133,5 +119,48 @@ func TestAdditionalPaymentCases(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		logger.Log.Info("잘못된 형식의 JSON으로 결제 실패: " + w.Body.String())
+	})
+	t.Run("Initialize Payment with cancel basic", func(t *testing.T) {
+		payload := dto.PaymentCreateRequest{
+			Amount:      10000,
+			ProductName: "테스트 상품",
+			PayMethod:   "card",
+		}
+
+		jsonData, _ := json.Marshal(payload)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/api/v1/payments", bytes.NewBuffer(jsonData))
+		req.Header.Set("Content-Type", "application/json")
+
+		engine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var response dto.APIResponse[dto.IdResponse[string]]
+		json.Unmarshal(w.Body.Bytes(), &response)
+
+		merchantUid := response.Data.ID
+		assert.NotEmpty(t, merchantUid)
+
+		t.Run("Cancel paid Payment By ImpUID", func(t *testing.T) {
+			paidMock := mock.MockPayData[mock.PaidMock]
+			w := httptest.NewRecorder()
+			basicCompletePayload := dto.PaymentBasicConfirmRequest{
+				ImpUID: paidMock.ImpUID,
+			}
+			jsonData, _ := json.Marshal(basicCompletePayload)
+			req, _ := http.NewRequest(http.MethodPut, "/api/v1/payments/complete", bytes.NewBuffer(jsonData))
+
+			engine.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusOK, w.Code)
+
+			var response dto.APIResponse[portone.PaymentData]
+			json.Unmarshal(w.Body.Bytes(), &response)
+
+			assert.Equal(t, "cancelled", response.Data.Status)
+			logger.Log.Info("결제 취소 성공: " + w.Body.String())
+		})
 	})
 }

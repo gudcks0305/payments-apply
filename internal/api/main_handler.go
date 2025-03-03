@@ -32,6 +32,7 @@ func (h *Handler) SetupRoutes(r *gin.Engine) {
 			})
 			payments.POST("", h.paymentHandler.CreatePayment)
 			payments.PUT("/:id/complete", h.paymentHandler.ConfirmWithCompletePayment)
+			payments.PUT("/complete", h.paymentHandler.ConfirmWithCompletePaymentBasic)
 			payments.GET("/imp/:impUID", h.paymentHandler.GetPaymentByImpUID)
 			payments.POST("/imp/:impUID/cancel", h.paymentHandler.CancelPaymentByImpUID)
 		}

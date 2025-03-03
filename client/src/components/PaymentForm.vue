@@ -118,8 +118,15 @@ const proceedToPayment = async () => {
     console.log(response);
 
     if (response.success) {
-      const confirmedPayment = await handlePaymentComplete(response);
-      console.log(confirmedPayment);
+      alert('결제가 성공적으로 처리되었습니다.');
+      
+      handlePaymentComplete(response)
+        .then(confirmedPayment => {
+          console.log('비동기 결제 확인 완료:', confirmedPayment);
+        })
+        .catch(error => {
+          console.error('비동기 결제 확인 실패:', error);
+        });
     } else {
       alert(`결제에 실패했습니다: ${response.error_msg}`);
     }
@@ -134,21 +141,21 @@ const handlePaymentComplete = async (paymentData: PortOnePaymentResponse) => {
     const result = await completePayment(paymentData);
     
     if (result instanceof Error) {
-      // completePayment 내부에서 이미 alert를 표시했지만
-      // 여기서 추가적인 UI 처리를 할 수 있습니다
+      // 백그라운드 처리이므로 사용자에게 알림을 표시하지 않음
       console.error('결제 확인 실패:', result.message);
-      // 결제 실패 후 UI 처리 로직
-      return;
+      // 필요한 경우 로그 기록 또는 시스템 알림
+      return null;
     }
     
-    // 결제 성공 처리
-    console.log('결제 완료:', result);
-    alert('결제가 성공적으로 처리 되었습니다.');
-    // 추가 성공 로직
+    // 결제 성공 처리 (백그라운드)
+    console.log('결제 확인 완료:', result);
+    // 추가 성공 로직 (사용자에게 표시하지 않음)
+    return result;
   } catch (error) {
-    // 예상치 못한 오류 처리
+    // 예상치 못한 오류 처리 (백그라운드)
     console.error('예상치 못한 오류:', error);
-    alert('예상치 못한 오류가 발생했습니다.');
+    // 필요한 경우 로그 기록 또는 시스템 알림
+    return null;
   }
 };
 </script>

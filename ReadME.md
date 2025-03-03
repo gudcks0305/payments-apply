@@ -25,7 +25,9 @@ sequenceDiagram
   Note left of client: 결제 요청을 externalAPI에 전달
   externalAPI->>client: 응답
   client->>client: redirect to 결제 완료 페이지
+  
   client->>server: 결제 완료 상태 complete API 요청 (결제 서버 ID 포함)
+  Note right of client: 결제 검증 및 취소를 위해 비동기 Non blocking 요청
   Note right of client: 결제 Imp ID를 서버에 전달하여 complete API 호출
   externalAPI->>server: 결제 완료 상태 응답
   server->>server: 결제 상태 확인 및 최종 처리
