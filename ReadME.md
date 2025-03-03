@@ -49,10 +49,11 @@ sequenceDiagram
 ## 실행 방법 
 ```shell
 # make .env file @see .env.example
-touch "PAYMENTS_PORTONE_IMP_KEY=YOUR_IMP_KEY" \
-      "PAYMENTS_PORTONE_IMP_SECRET=YOUR_IMP_SECRET" \
-        "PAYMENTS_PORTONE_SERVER_PORT=8080" \
-     > .env
+cat << EOF > .env
+PAYMENTS_PORTONE_IMP_KEY=YOUR_IMP_KEY
+PAYMENTS_PORTONE_IMP_SECRET=YOUR_IMP_SECRET
+PAYMENTS_PORTONE_SERVER_PORT=8080
+EOF
 
 # run docker 
 docker-compose up -d
