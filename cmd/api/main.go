@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	_ "github.com/gudcks0305/payments-apply/docs" // Swagger 문서를 임포트합니다
 	"github.com/gudcks0305/payments-apply/internal/api"
 	"github.com/gudcks0305/payments-apply/internal/api/handler"
 	"github.com/gudcks0305/payments-apply/internal/config"
@@ -11,6 +12,8 @@ import (
 	"github.com/gudcks0305/payments-apply/internal/repository"
 	"github.com/gudcks0305/payments-apply/internal/service"
 	"github.com/gudcks0305/payments-apply/pkg/database"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -35,17 +38,8 @@ func startServer(p HandlerParams) {
 						return err
 					}
 				}
+				p.Engine.GET("/swagger-ui/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-				// 라우트 설정
-				//p.Router.SetupRoutes(p.Engine, handler.NewPaymentHandler)
-				// 정적 파일 제공 (프로덕션 환경에서 클라이언트 앱 서빙)
-				/*p.Engine.Static("/assets", "./client/dist/assets")
-				p.Engine.StaticFile("/", "./client/dist/index.html")
-
-				// 모든 경로를 SPA로 리다이렉트 (클라이언트 라우팅 지원)
-				p.Engine.NoRoute(func(c *gin.Context) {
-					c.File("./client/dist/index.html")
-				})*/
 				go p.Engine.Run(":" + p.Config.Server.Port)
 
 				return nil

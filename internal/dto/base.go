@@ -22,5 +22,4 @@ func APIResponseCreated[T any](response T) APIResponse[T] {
 
 func APIResponseError[T any](appError errors.AppError) APIResponse[T] {
 	return APIResponse[T]{Code: appError.StatusCode, Message: appError.Message}
-
 }

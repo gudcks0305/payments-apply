@@ -8,9 +8,13 @@ RUN apk --no-cache add --update gcc musl-dev
 # Go 모듈 의존성 설치
 COPY go.mod go.sum ./
 RUN go mod download
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Swagger 문서 생성
 
 # 소스 코드 복사 및 빌드
 COPY . .
+RUN swag init -g ./cmd/api/main.go --parseDependency --parseInternal
 RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api/main.go
 
 # 실행 단계

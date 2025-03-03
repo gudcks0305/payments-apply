@@ -6,6 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
+// @title 결제 시스템 API
+// @version 1.0
+// @description 결제 시스템을 위한 REST API 서비스
+// @BasePath /api/v1
+
 type Handler struct {
 	db             *gorm.DB
 	paymentHandler *handler.PaymentHandler
@@ -18,10 +23,8 @@ func NewHandler(db *gorm.DB, engine *gin.Engine, paymentHandler *handler.Payment
 }
 
 func (h *Handler) SetupRoutes(r *gin.Engine) {
-	// API 라우트 설정
 	api := r.Group("/api/v1")
 	{
-		// Payment 라우트 설정
 		payments := api.Group("/payments")
 		{
 			payments.GET("", func(context *gin.Context) {
