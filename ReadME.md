@@ -58,3 +58,5 @@ EOF
 # run docker 
 docker-compose up -d
 ```
+http://localhost:3000 접속 후 결제 요청
+
