@@ -16,6 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var Log = logger.Log
+
 func TestPaymentFlow(t *testing.T) {
 	engine, _, app := integration.SetupGinApp(t)
 	app.RequireStart()
@@ -73,7 +75,7 @@ func TestPaymentFlow(t *testing.T) {
 			engine.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
-			logger.Log.Info(w.Body.String())
+			Log.Info(w.Body.String())
 
 			t.Run("Get Payment By ImpUID", func(t *testing.T) {
 				w := httptest.NewRecorder()
@@ -88,7 +90,7 @@ func TestPaymentFlow(t *testing.T) {
 
 				assert.Equal(t, paidMock.ImpUID, response.Data.ImpUID)
 
-				logger.Log.Info("결제 조회 성공: " + w.Body.String())
+				Log.Info("결제 조회 성공: " + w.Body.String())
 			})
 
 		})
@@ -107,7 +109,7 @@ func TestAdditionalPaymentCases(t *testing.T) {
 		engine.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		logger.Log.Info("빈 요청 본문으로 결제 실패: " + w.Body.String())
+		Log.Info("빈 요청 본문으로 결제 실패: " + w.Body.String())
 	})
 
 	t.Run("Initialize Payment with Invalid JSON", func(t *testing.T) {
@@ -118,7 +120,7 @@ func TestAdditionalPaymentCases(t *testing.T) {
 		engine.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		logger.Log.Info("잘못된 형식의 JSON으로 결제 실패: " + w.Body.String())
+		Log.Info("잘못된 형식의 JSON으로 결제 실패: " + w.Body.String())
 	})
 	t.Run("Initialize Payment with cancel basic", func(t *testing.T) {
 		payload := dto.PaymentCreateRequest{
@@ -160,7 +162,7 @@ func TestAdditionalPaymentCases(t *testing.T) {
 			json.Unmarshal(w.Body.Bytes(), &response)
 
 			assert.Equal(t, "cancelled", response.Data.Status)
-			logger.Log.Info("결제 취소 성공: " + w.Body.String())
+			Log.Info("결제 취소 성공: " + w.Body.String())
 		})
 	})
 }

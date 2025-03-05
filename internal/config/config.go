@@ -28,6 +28,8 @@ type Config struct {
 	} `mapstructure:"database"`
 }
 
+var Log = logger.Log
+
 func NewConfig() *Config {
 	// 기본 설정 파일 설정
 	viper.SetConfigName("config")
@@ -41,12 +43,12 @@ func NewConfig() *Config {
 	bindEnvs()
 
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Log.Error("설정 파일을 읽는데 실패했습니다: %v, 환경 변수만 사용합니다", err)
+		Log.Error("설정 파일을 읽는데 실패했습니다: %v, 환경 변수만 사용합니다", err)
 	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
-		logger.Log.Error("설정을 구조체로 변환하는데 실패했습니다: %v", err)
+		Log.Error("설정을 구조체로 변환하는데 실패했습니다: %v", err)
 	}
 
 	return &config

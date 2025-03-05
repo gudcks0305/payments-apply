@@ -20,6 +20,8 @@ type POClient interface {
 	Post(path string, reqBody interface{}, respBody interface{}) error
 }
 
+var Log = logger.Log
+
 type Client struct {
 	config      *config.Config
 	httpClient  *http.Client
@@ -64,7 +66,7 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 	req.Header.Set("Authorization", "Bearer "+token)
 	fmt.Println("Bearer " + token)
 
-	logger.Log.Info("[PortOne API 요청] %s %s", method, path)
+	Log.Info("[PortOne API 요청] %s %s", method, path)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -73,7 +75,7 @@ func (c *Client) doWithRetry(method, path string, reqBody interface{}, respBody 
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized && allowRetry {
-		logger.Log.Warn("[PortOne API] 토큰 만료됨, 재발급 시도")
+		Log.Warn("[PortOne API] 토큰 만료됨, 재발급 시도")
 		c.authService.InvalidateToken()
 		return c.doWithRetry(method, path, reqBody, respBody, false) // 재시도는 한 번만
 	}
